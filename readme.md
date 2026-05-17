@@ -45,3 +45,17 @@ i32 main() {
 }
 ```
 
+# Result example
+```sh
+┌───────────────────────────────────┐
+│[first] passed                     │
+│[second] skipped                   │
+│[third] failed                     │
+├───────────────────────────────────┤
+│Total  : [3]                       │
+│Result : [1/1/1]                   │
+│Format : passes, skips, fails      │
+└───────────────────────────────────┘
+[user@user dir]$
+```
+
