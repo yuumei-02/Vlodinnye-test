@@ -5,7 +5,9 @@
 #include <time.h>
 #include <unistd.h>
 
-TestResult compute() {
+TestResult compute(TestResult previous) {
+   if (previous == TR_Pass) return TR_Skip;
+
    struct timespec delay = {
       .tv_sec = 0,
       .tv_nsec = rand() / 10.0f
@@ -13,10 +15,9 @@ TestResult compute() {
 
    nanosleep(&delay, null);
 
-   i32 result = rand() % 3;
+   i32 result = rand() % 2;
    switch (result) {
       case 0:  return TR_Pass;
-      case 1:  return TR_Skip;
       default: return TR_Fail;
    }
 }
@@ -25,9 +26,11 @@ i32 main() {
    srand(time(null));
 
    Vtest_start(35);
-   for (u32 i = 0; i < 25; ++i) {
-      run_test(compute);
-      run_test_ex(compute, "compute me!");
+   TestResult result = TR_Unknown;
+   for (u32 i = 0; i < 20; ++i) {
+      result = run_test_ex(compute, "first", result);
+      result = run_test_ex(compute, "second", result);
+      result = run_test(compute);
    }
    Vtest_end();
    return 0;

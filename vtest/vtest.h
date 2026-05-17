@@ -5,28 +5,30 @@
 #include <mcu/io.h>
 
 typedef enum {
+   TR_Unknown,
    TR_Pass,
    TR_Fail,
    TR_Skip
 } TestResult;
 
-typedef TestResult (*TestFn)();
-
 typedef struct {
    u32 passes;
    u32 fails;
    u32 skips;
+   u32 unknown;
 
    u32 ui_width;
 } TestState;
+
+typedef TestResult (*TestFn)(TestResult previous_result);
 
 void Vtest_start(u32 ui_width);
 void Vtest_end();
 
 #define run_test(test_fn) \
-   run_test_ex(test_fn, #test_fn)
+   run_test_ex(test_fn, #test_fn, TR_Unknown)
 
-TestResult run_test_ex(TestFn test_fn, const cstr const name);
+TestResult run_test_ex(TestFn test_fn, const cstr const name, TestResult previous_result);
 
 extern TestState state;
 
@@ -83,20 +85,26 @@ void Vtest_end() {
       green,  reset,
       yellow, reset,
       red,    reset);
+
+   if (state.unknown > 0) {
+      repeat_puts(" ", state.ui_width + 1);
+      printf("│\r");
+      printf("│Unknown: %s%u%s\n", blue, state.unknown, reset);
+   }
    
    printf("└");
    repeat_puts("─", state.ui_width);
    printf("┘\n");
 }
 
-TestResult run_test_ex(TestFn test_fn, const cstr const name) {
+TestResult run_test_ex(TestFn test_fn, const cstr const name, TestResult previous_result) {
    mcu_assert(test_fn != nullptr, "test_fn can't be null");
 
    repeat_puts(" ", state.ui_width + 1);
    printf("│\r");
    printf("│%s[%s]...%s\r", blue, name, reset);
 
-   TestResult result = test_fn();
+   TestResult result = test_fn(previous_result);
    
    switch (result) {
       case TR_Pass: {
@@ -105,14 +113,19 @@ TestResult run_test_ex(TestFn test_fn, const cstr const name) {
       } return result;
 
       case TR_Skip: {
-         state.skips  += 1;
+         state.skips += 1;
          printf("│%s[%s] skipped%s\n", yellow, name, reset);
       } return result;
       
       case TR_Fail: {
-         state.fails  += 1;
+         state.fails += 1;
          printf("│%s[%s] failed%s\n", red, name, reset);
       } return result;
+
+      default: {
+         state.unknown += 1;
+         printf("│%s[%s] unknown%s\n", blue, name, reset);
+      } return TR_Unknown;
    }
 
    panic("test_fn returned an invalid TestResult enum variant");
