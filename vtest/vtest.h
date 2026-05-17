@@ -23,7 +23,10 @@ typedef struct {
 void Vtest_start(u32 ui_width);
 void Vtest_end();
 
-TestResult run_test(TestFn test_fn, const cstr const name);
+#define run_test(test_fn) \
+   run_test_ex(test_fn, #test_fn)
+
+TestResult run_test_ex(TestFn test_fn, const cstr const name);
 
 extern TestState state;
 
@@ -41,13 +44,6 @@ static const cstr red    = "\x1b[31m";
 static const cstr yellow = "\x1b[33m";
 static const cstr green  = "\x1b[32m";
 static const cstr blue   = "\x1b[34m";
-
-// ┌───────────────────────────────────┐
-// │[computation] passed               │
-// ├───────────────────────────────────┤
-// │Result : [1/0/1]                   │
-// │Format : passes, fails, total      │
-// └───────────────────────────────────┘
 
 void repeat_puts(const cstr const str, u32 count) {
    for (u32 i = 0; i < count; ++i) {
@@ -93,7 +89,7 @@ void Vtest_end() {
    printf("┘\n");
 }
 
-TestResult run_test(TestFn test_fn, const cstr const name) {
+TestResult run_test_ex(TestFn test_fn, const cstr const name) {
    mcu_assert(test_fn != nullptr, "test_fn can't be null");
 
    repeat_puts(" ", state.ui_width + 1);

@@ -25,8 +25,9 @@ i32 main() {
    srand(time(null));
 
    Vtest_start(35);
-   for (u32 i = 0; i < 50; ++i) {
-      run_test(compute, "compute");
+   for (u32 i = 0; i < 25; ++i) {
+      run_test(compute);
+      run_test_ex(compute, "compute me!");
    }
    Vtest_end();
    return 0;
