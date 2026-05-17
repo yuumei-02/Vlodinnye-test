@@ -106,7 +106,7 @@ TestResult run_test_ex(TestFn test_fn, const cstr const name) {
 
       case TR_Skip: {
          state.skips  += 1;
-         printf("│%s[%s] skip%s\n", yellow, name, reset);
+         printf("│%s[%s] skipped%s\n", yellow, name, reset);
       } return result;
       
       case TR_Fail: {
