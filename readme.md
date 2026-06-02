@@ -17,7 +17,7 @@ Now, run ```./vmake build``` to build the project and you're done.
 #define VTEST_IMPL
 #include "vtest.h"
 
-TestResult compute() {
+TestResult compute(TestResult previous) {
    // run test code
    
    // Return either one of the three result types
@@ -33,8 +33,8 @@ i32 main() {
    Vtest_start(35);
 
    // Run a test function either with a custom name or not
-   run_test(compute)
-   run_test_ex(compute, "compute me!");
+   TestResult previous = run_test(compute);
+   run_test_ex(compute, "compute me!", previous);
    
    // Stop test running and dump the results
    Vtest_end();
